@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Resgate do Gerador – Basicando 4 · RPM Fora de Controle · v1.0.0</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #020617;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .game-container {
+      background: radial-gradient(circle at top, #1e293b, #020617 55%);
+      border-radius: 20px;
+      padding: 24px 20px;
+      max-width: 560px;
+      width: 92%;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+      border: 1px solid #1f2937;
+      position: relative;
+      overflow: hidden;
+    }
+    h1 {
+      font-size: 1.5rem;
+      margin-top: 0;
+      margin-bottom: 8px;
+      color: #38bdf8;
+      text-align: center;
+    }
+    h2 {
+      font-size: 1.1rem;
+      margin: 0 0 8px 0;
+      text-align: center;
+      color: #e5e7eb;
+    }
+    .subtitle {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-bottom: 12px;
+      text-align: center;
+    }
+    .badge {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #fbbf24;
+      text-align: center;
+      margin-bottom: 6px;
+    }
+    .disclaimer {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .question {
+      margin-bottom: 12px;
+      font-size: 1rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+    }
+    .modeTag {
+      font-size: 0.75rem;
+      color: #a5b4fc;
+      margin-bottom: 10px;
+      text-align: left;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    button.option-btn {
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: #0b1120;
+      color: #e5e7eb;
+      text-align: left;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.1s;
+      font-size: 0.95rem;
+      border: 1px solid #1f2937;
+      user-select: none;
+    }
+    button.option-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+      background: #111827;
+    }
+    button.option-btn:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    /* Estado selecionado para MULTI */
+    button.option-btn.selected {
+      background: #0b2239;
+      border-color: #38bdf8;
+      box-shadow: 0 10px 18px rgba(56,189,248,0.12);
+    }
+
+    .feedback {
+      min-height: 40px;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+      white-space: pre-wrap;
+    }
+    .score {
+      font-size: 0.9rem;
+      color: #a5b4fc;
+      margin-bottom: 8px;
+    }
+    .mentor {
+      font-size: 0.85rem;
+      color: #facc15;
+      margin-bottom: 8px;
+      white-space: pre-wrap;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: #38bdf8;
+      color: #020617;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 0.95rem;
+      transition: background 0.1s, transform 0.08s, box-shadow 0.08s;
+      text-align: center;
+      width: 100%;
+      margin-top: 8px;
+    }
+    .btn-primary:hover {
+      background: #0ea5e9;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    }
+    .btn-primary:active { transform: translateY(0); box-shadow: none; }
+
+    .btn-ghost {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: transparent;
+      color: #9ca3af;
+      border: 1px solid #1f2937;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: background 0.1s, color 0.1s, transform 0.08s;
+      width: 100%;
+      margin-top: 6px;
+    }
+    .btn-ghost:hover {
+      background: #020617;
+      color: #e5e7eb;
+      transform: translateY(-1px);
+    }
+
+    .tagline {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 10px;
+      text-align: center;
+    }
+    .small { font-size: 0.8rem; }
+    .mt-8 { margin-top: 8px; }
+    .mt-16 { margin-top: 16px; }
+    .highlight { color: #38bdf8; font-weight: bold; }
+
+    /* Mascote */
+    .mascote-fixed{
+      position: fixed;
+      z-index: 50;
+      pointer-events: none;
+      user-select: none;
+      opacity: 0.95;
+    }
+    @media (min-width: 1025px){
+      .mascote-fixed{ width: 190px; top: 120px; right: 120px; }
+    }
+    @media (min-width: 601px) and (max-width: 1024px){
+      .mascote-fixed{ width: 170px; top: 120px; right: 20px; }
+    }
+    @media (max-width: 600px){
+      .mascote-fixed{ width: 95px; right: 8px; bottom: 12px; top: auto; opacity: 0.9; }
+    }
+
+    /* Fogos */
+    #fxCanvas{
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      display: none;
+    }
+
+    /* === BASICANDO 4 · MANUAL TÉCNICO (MÍDIA) === */
+    #mediaBox{ margin: 10px 0 12px; }
+    .mediaFrame{
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid #1f2937;
+      background: #0b1120;
+      box-shadow: 0 14px 26px rgba(0,0,0,0.55);
+    }
+    .mediaFrame img{ width: 100%; display: block; transform: translateZ(0); }
+    .mediaCaption{
+      margin-top: 8px;
+      font-size: 0.82rem;
+      color: #9ca3af;
+      line-height: 1.35;
+    }
+    #mediaOverlays{ position:absolute; inset:0; pointer-events:none; }
+    .callout{
+      position:absolute;
+      max-width: 78%;
+      background: rgba(2,6,23,0.78);
+      border: 1px solid rgba(56,189,248,0.45);
+      color: #e5e7eb;
+      padding: 8px 10px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      box-shadow: 0 10px 18px rgba(0,0,0,0.45);
+    }
+    .callout b{ color:#38bdf8; }
+    .tagRed{ border-color: rgba(248,113,113,0.55); }
+  </style>
+</head>
+
+<body>
+  <canvas id="fxCanvas"></canvas>
+  <img class="mascote-fixed" src="assets/maninho.png" alt="Maninho" />
+
+  <div class="game-container">
+
+    <!-- MENU -->
+    <div id="menuScreen">
+      <h1>Resgate do Gerador</h1>
+      <div class="badge">Basicando 4 · RPM Fora de Controle</div>
+      <div class="subtitle">
+        Estudo de caso técnico visual. Diagnóstico antes do chute. Do sintoma ao básico.
+      </div>
+      <div class="disclaimer">
+        Jogo educativo e experimental. Não substitui manuais, treinamentos oficiais
+        ou procedimentos específicos de fabricantes. Use como apoio técnico.
+      </div>
+
+      <button class="btn-primary" onclick="startGame()">
+        Iniciar caso técnico
+      </button>
+
+      <button class="btn-ghost" onclick="showCredits()">
+        Ver créditos
+      </button>
+
+      <div class="tagline">
+        Infinita Geradores · Basicando 4 · v1.0.0
+      </div>
+    </div>
+
+    <!-- JOGO -->
+    <div id="gameScreen" style="display:none;">
+      <div class="mentor" id="mentorBox"></div>
+      <div class="score" id="score"></div>
+      <div class="modeTag" id="modeTag"></div>
+
+      <!-- MÍDIA (NOVO) -->
+      <div id="mediaBox" style="display:none;">
+        <div class="mediaFrame">
+          <img id="mediaImg" src="" alt="" />
+          <div id="mediaOverlays"></div>
+        </div>
+        <div class="mediaCaption" id="mediaCaption"></div>
+      </div>
+
+      <div class="question" id="question"></div>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+
+      <button class="btn-primary" id="confirmBtn" style="display:none;">Confirmar seleção</button>
+      <button class="btn-primary" id="nextBtn" style="display:none;">Próxima etapa</button>
+      <button class="btn-ghost" id="retryBtn" style="display:none;">Tentar novamente</button>
+      <button class="btn-ghost" onclick="backToMenu()">Voltar ao menu</button>
+    </div>
+
+    <!-- FINAL -->
+    <div id="endScreen" style="display:none;">
+      <h2>Diagnóstico concluído</h2>
+      <p id="finalMessage"></p>
+      <p class="small mt-8" id="finalScore"></p>
+      <button class="btn-primary" onclick="restartGame()">Reiniciar caso</button>
+      <button class="btn-ghost" onclick="backToMenu()">Voltar ao menu</button>
+      <div class="tagline mt-16">
+        Caso interativo — Infinita Geradores
+      </div>
+    </div>
+
+    <!-- CRÉDITOS -->
+    <div id="creditsScreen" style="display:none;">
+      <h2>Créditos</h2>
+      <p class="small">
+        Conceito e prática de campo: <span class="highlight">Mano – Infinita Geradores</span>.<br/>
+        IA parceira: <span class="highlight">Akamai</span>.<br/>
+        Mentor técnico: <span class="highlight">Germano</span>.
+      </p>
+      <p class="small mt-8">
+        Basicando 4 — Estudo de caso sobre sobre-rotação e diagnóstico técnico.
+      </p>
+      <button class="btn-ghost mt-16" onclick="backToMenu()">Voltar ao menu</button>
+    </div>
+
+  </div>
+
+<script>
+/* =========================
+   BASICANDO 4 — TELAS (CASO REAL)
+   Coloque suas imagens em /assets com os nomes abaixo
+   ========================= */
+const questions = [
+  {
+    type:"single",
+    text:"O motor parte normalmente, mas a rotação sobe sem controle até ultrapassar 2500 RPM e entra em proteção por sobre-rotação. Qual linha de diagnóstico você inicia?",
+    media:{
+      src:"assets/b4_painel.png",
+      alt:"Painel PowerCommand em shutdown",
+      caption:"Proteção ativa. O painel reagiu ao evento — a causa pode estar fora do eletrônico.",
+      callouts:[
+        { x: 6, y: 70, text:"<b>Alarme</b>: sobre-rotação", variant:"red" },
+        { x: 52, y: 58, text:"<b>Pista</b>: leitura válida", variant:"blue" }
+      ]
+    },
+    options:[
+      { text:"Sistema de combustível / liberação excessiva", correct:true, feedback:"Boa. Excesso de combustível pode elevar rotação sem controle." },
+      { text:"Condenar o controlador PCC3100", correct:false, feedback:"Trocar eletrônico sem validar é chute caro." },
+      { text:"Defeito estrutural do motor", correct:false, feedback:"Sem evidência, não comece pelo mais grave." },
+      { text:"Aumentar o setpoint de proteção", correct:false, feedback:"Nunca mascare proteção para 'ver se passa'." }
+    ]
+  },
+  {
+    type:"single",
+    text:"Na linha de combustível, o que você verifica primeiro para descartar excesso ou restrição?",
+    media:{
+      src:"assets/b4_diesel.png",
+      alt:"Linha de retorno e conexões de diesel",
+      caption:"Retorno e restrições podem simular falha de bomba ou injeção.",
+      callouts:[
+        { x: 18, y: 40, text:"<b>Retorno</b>: livre?", variant:"blue" },
+        { x: 58, y: 62, text:"<b>Conexões</b>: obstruções", variant:"blue" }
+      ]
+    },
+    options:[
+      { text:"Válvulas de retenção e retorno", correct:true, feedback:"Correto. Retorno bloqueado pode elevar pressão/volume." },
+      { text:"Apenas o nível do tanque", correct:false, feedback:"Nível sozinho não fecha diagnóstico." },
+      { text:"Somente os bicos injetores", correct:false, feedback:"Verifique a cadeia antes de isolar o componente." },
+      { text:"Ignorar e partir para o eletrônico", correct:false, feedback:"Ainda é cedo para pular etapa." }
+    ]
+  },
+  {
+    type:"single",
+    text:"A teoria hidráulica entra em cena. O que você busca evidenciar?",
+    media:{
+      src:"assets/b4_dutos.png",
+      alt:"Dutos e flanges com resíduos",
+      caption:"Combustível acumulado pode indicar retorno restrito ou afogamento.",
+      callouts:[
+        { x: 22, y: 30, text:"<b>Acúmulo</b>: sinais", variant:"blue" }
+      ]
+    },
+    options:[
+      { text:"Risco de calço hidráulico", correct:true, feedback:"Boa. Excesso de diesel pode encher câmara." },
+      { text:"Falha de alternador", correct:false, feedback:"Não se conecta com o sintoma." },
+      { text:"Erro de programação", correct:false, feedback:"Ainda não há indício." },
+      { text:"Desgaste de rolamentos", correct:false, feedback:"Sintoma não aponta para isso." }
+    ]
+  },
+  {
+    type:"single",
+    text:"No eletrônico, o que a leitura correta de rotação indica?",
+    media:{
+      src:"assets/b4_placa.png",
+      alt:"Placa de controle e chicotes",
+      caption:"Se o sensor lê certo, a proteção só reage ao que o motor faz.",
+      callouts:[
+        { x: 60, y: 20, text:"<b>Sensor</b>: leitura", variant:"blue" }
+      ]
+    },
+    options:[
+      { text:"Painel pode estar certo", correct:true, feedback:"Exato. A proteção reage a um evento real." },
+      { text:"Sempre é defeito de placa", correct:false, feedback:"Nem sempre. Valide antes." },
+      { text:"Ignorar o eletrônico", correct:false, feedback:"Não ignore, valide." },
+      { text:"Reset resolve", correct:false, feedback:"Reset não corrige causa." }
+    ]
+  },
+  {
+    type:"single",
+    text:"Qual etapa simples costuma ser ignorada, mas resolve o caso?",
+    media:{
+      src:"assets/b4_cabecote.png",
+      alt:"Cabeçote e regulagem",
+      caption:"O básico bem feito supera desmontagens complexas.",
+      callouts:[
+        { x: 30, y: 60, text:"<b>Regulagem</b>: válvulas / unidades", variant:"red" }
+      ]
+    },
+    options:[
+      { text:"Regulagem de válvulas e unidades injetoras conforme manual", correct:true, feedback:"Correto. Solução real do caso." },
+      { text:"Troca da bomba injetora", correct:false, feedback:"Caro e desnecessário aqui." },
+      { text:"Atualização de firmware", correct:false, feedback:"Não se aplica." },
+      { text:"Ajuste do setpoint de rotação", correct:false, feedback:"Mascarar não resolve." }
+    ]
+  },
+  {
+    type:"single",
+    text:"Após a regulagem correta, qual é o comportamento esperado?",
+    media:{
+      src:"assets/b4_potencia.png",
+      alt:"Barramento e TCs",
+      caption:"Potência controlada começa com motor estabilizado.",
+      callouts:[
+        { x: 50, y: 40, text:"<b>Estável</b>: rotação nominal", variant:"blue" }
+      ]
+    },
+    options:[
+      { text:"Subida até nominal e estabilização", correct:true, feedback:"Boa. Sistema volta ao normal." },
+      { text:"Nova sobre-rotação", correct:false, feedback:"Não após correção." },
+      { text:"Quedas aleatórias", correct:false, feedback:"Indica outro problema." },
+      { text:"Proteção desativada", correct:false, feedback:"Proteção permanece ativa." }
+    ]
+  }
+];
+
+/* =========================
+   ESTADO
+   ========================= */
+let currentIndex = 0;
+let points = 0;
+let maxPoints = 0;
+let answered = false;
+
+const menuScreen = document.getElementById("menuScreen");
+const gameScreen = document.getElementById("gameScreen");
+const endScreen = document.getElementById("endScreen");
+const creditsScreen = document.getElementById("creditsScreen");
+
+const mentorBox = document.getElementById("mentorBox");
+const scoreEl = document.getElementById("score");
+const modeTag = document.getElementById("modeTag");
+const questionEl = document.getElementById("question");
+const optionsEl = document.getElementById("options");
+const feedbackEl = document.getElementById("feedback");
+const nextBtn = document.getElementById("nextBtn");
+const retryBtn = document.getElementById("retryBtn");
+const confirmBtn = document.getElementById("confirmBtn");
+
+const mediaBox = document.getElementById("mediaBox");
+const mediaImg = document.getElementById("mediaImg");
+const mediaCaption = document.getElementById("mediaCaption");
+const mediaOverlays = document.getElementById("mediaOverlays");
+
+const finalMessageEl = document.getElementById("finalMessage");
+const finalScoreEl = document.getElementById("finalScore");
+
+/* =========================
+   MENTOR / TELAS
+   ========================= */
+function setMentorMessage(text) {
+  if (mentorBox) mentorBox.textContent = "🧢 Germano: " + text;
+}
+function showOnly(screen) {
+  menuScreen.style.display = "none";
+  gameScreen.style.display = "none";
+  endScreen.style.display = "none";
+  creditsScreen.style.display = "none";
+  screen.style.display = "block";
+}
+function backToMenu(){ showOnly(menuScreen); stopFireworks(); }
+function showCredits(){ showOnly(creditsScreen); }
+
+/* =========================
+   UTIL
+   ========================= */
+function shuffleArray(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+/* =========================
+   PONTUAÇÃO
+   ========================= */
+function computeMaxPoints(){
+  maxPoints = 0;
+  for(const q of questions){
+    if(q.type === "single") maxPoints += 1;
+    else maxPoints += q.options.filter(o=>o.correct).length;
+  }
+}
+computeMaxPoints();
+
+/* =========================
+   MÍDIA
+   ========================= */
+function renderMedia(q){
+  if(!q || !q.media){
+    mediaBox.style.display = "none";
+    mediaOverlays.innerHTML = "";
+    return;
+  }
+  mediaBox.style.display = "block";
+  mediaImg.src = q.media.src;
+  mediaImg.alt = q.media.alt || "Imagem técnica";
+  mediaCaption.textContent = q.media.caption || "";
+  mediaOverlays.innerHTML = "";
+
+  (q.media.callouts || []).forEach(c=>{
+    const d = document.createElement("div");
+    d.className = "callout" + (c.variant === "red" ? " tagRed" : "");
+    d.style.left = c.x + "%";
+    d.style.top = c.y + "%";
+    d.innerHTML = c.text;
+    mediaOverlays.appendChild(d);
+  });
+}
+
+/* =========================
+   JOGO
+   ========================= */
+function startGame(){
+  currentIndex = 0;
+  points = 0;
+  answered = false;
+  showOnly(gameScreen);
+  setMentorMessage("Caso iniciado. Diagnóstico antes do chute.");
+  loadQuestion();
+}
+function restartGame(){ startGame(); }
+
+function updateScore(){
+  const total = questions.length;
+  scoreEl.textContent = "Etapa " + (currentIndex + 1) + " de " + total + " • Pontos: " + points + " / " + maxPoints;
+}
+
+let currentShuffledIdx = [];
+let selectedMulti = new Set();
+
+function loadQuestion(){
+  answered = false;
+  selectedMulti = new Set();
+
+  feedbackEl.textContent = "";
+  nextBtn.style.display = "none";
+  retryBtn.style.display = "none";
+  confirmBtn.style.display = "none";
+
+  const total = questions.length;
+  const numero = currentIndex + 1;
+  setMentorMessage("Etapa " + numero + " de " + total + ". Siga a cadeia de causa → verificação → decisão.");
+
+  const q = questions[currentIndex];
+  questionEl.textContent = q.text;
+  renderMedia(q);
+
+  modeTag.textContent = (q.type === "single")
+    ? "Modo: escolha única (1 alternativa)"
+    : "Modo: múltipla marcação (várias alternativas)";
+
+  const indices = q.options.map((_, i) => i);
+  currentShuffledIdx = shuffleArray(indices);
+
+  optionsEl.innerHTML = "";
+
+  currentShuffledIdx.forEach((realIdx) => {
+    const opt = q.options[realIdx];
+    const btn = document.createElement("button");
+    btn.className = "option-btn";
+    btn.textContent = opt.text;
+
+    if(q.type === "single"){
+      btn.onclick = () => selectSingle(realIdx);
+    } else {
+      btn.onclick = () => toggleMulti(realIdx, btn);
+    }
+
+    optionsEl.appendChild(btn);
+  });
+
+  if(q.type === "multi"){
+    confirmBtn.style.display = "inline-block";
+  }
+
+  updateScore();
+}
+
+function selectSingle(realIndex){
+  if(answered) return;
+
+  const q = questions[currentIndex];
+  const chosen = q.options[realIndex];
+  answered = true;
+
+  if(chosen.correct){
+    points += 1;
+    feedbackEl.textContent = "✅ " + (chosen.feedback || "Boa decisão.");
+    setMentorMessage("Boa. Método aplicado.");
+    nextBtn.style.display = "inline-block";
+    retryBtn.style.display = "none";
+  } else {
+    feedbackEl.textContent = "❌ " + (chosen.feedback || "Revisa a cadeia e tenta de novo.");
+    setMentorMessage("Parcial. Volta um passo no método.");
+    retryBtn.style.display = "inline-block";
+    nextBtn.style.display = "none";
+  }
+
+  updateScore();
+}
+
+function toggleMulti(realIndex, btnEl){
+  if(answered) return;
+
+  if(selectedMulti.has(realIndex)){
+    selectedMulti.delete(realIndex);
+    btnEl.classList.remove("selected");
+  } else {
+    selectedMulti.add(realIndex);
+    btnEl.classList.add("selected");
+  }
+}
+
+function confirmMulti(){
+  if(answered) return;
+
+  const q = questions[currentIndex];
+
+  const correctSet = new Set(
+    q.options.map((o,i)=> o.correct ? i : -1).filter(i=>i>=0)
+  );
+
+  let allCorrect = true;
+  for(const c of correctSet){
+    if(!selectedMulti.has(c)) { allCorrect = false; break; }
+  }
+
+  let hasWrong = false;
+  for(const idx of selectedMulti){
+    if(!q.options[idx].correct){ hasWrong = true; break; }
+  }
+
+  const perfect = allCorrect && !hasWrong;
+
+  answered = true;
+  confirmBtn.style.display = "none";
+
+  if(perfect){
+    points += correctSet.size;
+
+    feedbackEl.textContent = "✅ Boa análise.";
+    setMentorMessage("Boa. Diagnóstico consistente.");
+    nextBtn.style.display = "inline-block";
+    retryBtn.style.display = "none";
+  } else {
+    feedbackEl.textContent = "⚠️ Parcial. Ajusta o raciocínio e tenta de novo.";
+    setMentorMessage("Revisão necessária.");
+    retryBtn.style.display = "inline-block";
+    nextBtn.style.display = "none";
+  }
+
+  updateScore();
+}
+
+function endGame(){
+  showOnly(endScreen);
+
+  const total = questions.length;
+  const percent = Math.round((points / maxPoints) * 100);
+
+  let mensagem;
+  if(percent >= 90){
+    mensagem = "Diagnóstico de alto nível. O básico venceu o complexo.";
+  } else if(percent >= 70){
+    mensagem = "Bom desempenho. Método aplicado com consistência.";
+  } else {
+    mensagem = "Abaixo do ideal. Refaça e siga a cadeia de causa.";
+  }
+
+  finalMessageEl.textContent = mensagem;
+  finalScoreEl.textContent = "Pontuação final: " + points + " / " + maxPoints + " (" + percent + "% ) • " + total + " etapas.";
+
+  startFireworks(5200);
+}
+
+/* =========================
+   BOTÕES
+   ========================= */
+nextBtn.addEventListener("click", () => {
+  currentIndex++;
+  if(currentIndex < questions.length) loadQuestion();
+  else endGame();
+});
+
+confirmBtn.addEventListener("click", () => {
+  confirmMulti();
+});
+
+if(retryBtn){
+  retryBtn.addEventListener("click", () => {
+    loadQuestion();
+  });
+}
+
+/* =========================
+   FOGOS
+   ========================= */
+const fxCanvas = document.getElementById("fxCanvas");
+const fx = fxCanvas.getContext("2d");
+let fxAnim = null;
+
+function startFireworks(durationMs=5000){
+  fxCanvas.style.display = "block";
+  fxCanvas.width = window.innerWidth;
+  fxCanvas.height = window.innerHeight;
+
+  const particles = [];
+  const gravity = 0.06;
+
+  function burst(){
+    const x = Math.random()*fxCanvas.width*0.8 + fxCanvas.width*0.1;
+    const y = Math.random()*fxCanvas.height*0.35 + fxCanvas.height*0.10;
+    const count = 70 + Math.floor(Math.random()*60);
+    for(let i=0;i<count;i++){
+      const ang = Math.random()*Math.PI*2;
+      const spd = 1.2 + Math.random()*3.8;
+      particles.push({x,y,vx:Math.cos(ang)*spd,vy:Math.sin(ang)*spd,life:90+Math.random()*50,r:1+Math.random()*2});
+    }
+  }
+
+  let t=0;
+  function step(){
+    t++;
+    if(t%20===0) burst();
+    if(t%35===0) burst();
+
+    fx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+    fx.globalCompositeOperation="lighter";
+
+    for(let i=particles.length-1;i>=0;i--){
+      const p=particles[i];
+      p.vy += gravity;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= 1;
+
+      const a = Math.max(0, Math.min(1, p.life/140));
+      fx.fillStyle = `rgba(255,255,255,${a})`;
+      fx.beginPath();
+      fx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      fx.fill();
+
+      if(p.life<=0) particles.splice(i,1);
+    }
+    fx.globalCompositeOperation="source-over";
+    fxAnim = requestAnimationFrame(step);
+  }
+  step();
+
+  setTimeout(stopFireworks, durationMs);
+}
+
+function stopFireworks(){
+  if(fxAnim) cancelAnimationFrame(fxAnim);
+  fxAnim=null;
+  fx.clearRect(0,0,fxCanvas.width,fxCanvas.height);
+  fxCanvas.style.display="none";
+}
+
+window.addEventListener("resize", ()=>{
+  if(fxCanvas.style.display !== "none"){
+    fxCanvas.width = window.innerWidth;
+    fxCanvas.height = window.innerHeight;
+  }
+});
+
+/* =========================
+   INICIAL
+   ========================= */
+showOnly(menuScreen);
+</script>
+</body>
+</html>
